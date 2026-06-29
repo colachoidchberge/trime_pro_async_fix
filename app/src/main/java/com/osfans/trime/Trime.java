@@ -159,6 +159,8 @@ public class Trime extends LuaService
     private ScrollView mScrollView;
     private LinearLayout noScrollView;
     private boolean mAsyncKey;
+    // Keep first key after service/config reset on the original synchronous path to warm InputConnection/Rime/UI state.
+    private boolean mAsyncKeyReady;
 
     private boolean isWinFixed() {
         return VERSION.SDK_INT < VERSION_CODES.LOLLIPOP
@@ -418,6 +420,7 @@ public class Trime extends LuaService
         mSystemSpeak = mConfig.isSystemSpeak();
         mPhraseSort = mConfig.isPhraseSort();
         mAsyncKey = mConfig.isAsyncKey();
+        mAsyncKeyReady = false;
 
         mCompositionWidth = (int) (getResources().getDisplayMetrics().widthPixels * mConfig.getCompositionWidth());
     }
@@ -1637,6 +1640,7 @@ public class Trime extends LuaService
         if (ic != null) {
             ic.commitText(text, 1);
             lastCommittedText = text.toString();
+            mAsyncKeyReady = true;
         }
         if (!isComposing()) Rime.commitComposition(); //自動上屏
         ic.clearMetaKeyStates(KeyEvent.getModifierMetaStateMask()); //黑莓刪除鍵清空文本框問題
@@ -2044,10 +2048,17 @@ public class Trime extends LuaService
                 int keyCode = event.getCode();
                 int mask = event.getMask();
                 // android.util.Log.i(TAG, "Rime onKey " + keyCode+":"+mask);
-                if (mAsyncKey && mask == 0 && isNumOrAlpha(keyCode))
-                    onAsyncKey(keyCode, mask);
-                else
+                if (mAsyncKey && mask == 0 && isNumOrAlpha(keyCode)) {
+                    if (mAsyncKeyReady) {
+                        onAsyncKey(keyCode, mask);
+                    } else {
+                        // The first composing key after IME restart is kept synchronous.
+                        onKey(keyCode, mask);
+                        mAsyncKeyReady = true;
+                    }
+                } else {
                     onKey(keyCode, mask);
+                }
             }
 
         }
