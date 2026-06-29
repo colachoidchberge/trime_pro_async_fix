@@ -36,8 +36,10 @@ jobs:
           distribution: temurin
           java-version: '11'
 
-      - name: Prepare Gradle
-        run: chmod +x ./gradlew
+      - name: Set up Gradle 6.5
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '6.5'
 
       - name: Read version
         id: version
@@ -49,7 +51,7 @@ jobs:
           echo "tag=v${VERSION_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Collect APK
         run: |
@@ -72,7 +74,7 @@ jobs:
             - Added safe async handler initialization and shutdown for the input method service lifecycle.
 
             Verification:
-            - Built by GitHub Actions using ./gradlew assembleDebug.
+            - Built by GitHub Actions using Gradle 6.5 assembleDebug.
           files: release/*.apk
           fail_on_unmatched_files: true
 
