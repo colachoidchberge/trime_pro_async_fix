@@ -56,31 +56,48 @@ jobs:
           echo "version_code=${VERSION_CODE}" >> "$GITHUB_OUTPUT"
           echo "tag=v${VERSION_NAME}" >> "$GITHUB_OUTPUT"
 
-      - name: Build debug APK
-        run: gradle assembleDebug --no-daemon --stacktrace
+      - name: Generate release signing key
+        run: |
+          keytool -genkeypair -v \
+            -keystore "$RUNNER_TEMP/trime-release.keystore" \
+            -storepass trime-ai-release \
+            -keypass trime-ai-release \
+            -alias trime-ai \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Chinese Input Method AI, OU=AI Patch, O=Operit, L=Unknown, S=Unknown, C=CN"
+
+      - name: Build signed release APK
+        env:
+          TRIME_RELEASE_STORE_FILE: ${{ runner.temp }}/trime-release.keystore
+          TRIME_RELEASE_STORE_PASSWORD: trime-ai-release
+          TRIME_RELEASE_KEY_ALIAS: trime-ai
+          TRIME_RELEASE_KEY_PASSWORD: trime-ai-release
+        run: gradle assembleRelease --no-daemon --stacktrace
 
       - name: Collect APK
         run: |
           mkdir -p release
-          cp app/build/outputs/apk/debug/*.apk "release/trime-pro-${{ steps.version.outputs.version_name }}-debug.apk"
+          cp app/build/outputs/apk/release/*.apk "release/chinese-input-ai-${{ steps.version.outputs.version_name }}-release-signed.apk"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          name: Trime Pro ${{ steps.version.outputs.version_name }}
+          name: 中文输入法AI版 ${{ steps.version.outputs.version_name }}
           body: |
             Version: ${{ steps.version.outputs.version_name }}
             VersionCode: ${{ steps.version.outputs.version_code }}
 
             Changes:
-            - Reworked async key processing to use a dedicated serialized Rime worker thread.
-            - Synchronized Java Rime entry points to prevent UI reads/writes racing native librime/librime-lua calls.
-            - Fixed crash path where multi-key rapid input could enter librime LuaTranslator and crash in lua_resume from Trime$AsyncThread.
-            - Added safe async handler initialization and shutdown for the input method service lifecycle.
+            - Generated an ad-hoc release signing key during GitHub Actions build.
+            - Built and published a signed release APK instead of a debug APK.
+            - Kept the async Rime threading crash fix, first-key warmup fix, app rename, and AI patch notice.
 
             Verification:
-            - Built by GitHub Actions using Gradle 6.5 assembleDebug.
+            - Built by GitHub Actions using Gradle 6.5 assembleRelease.
+            - Release APK is signed with the workflow-generated key.
           files: release/*.apk
           fail_on_unmatched_files: true
 
