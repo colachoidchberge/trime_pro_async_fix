@@ -2396,10 +2396,11 @@ public class Trime extends LuaService
         mEffect.playSound(keyCode);
         //mEffect.speakKey(keyCode);
     }
-
     @Override
     public void onPress(Key key) {
         if (key == null)
+            return;
+        if (!Function.getPref(this).getBoolean("speak_key_label", true))
             return;
 
         if (isTouchExplorationEnabled())
@@ -2407,6 +2408,7 @@ public class Trime extends LuaService
         else
             mEffect.speakKey(mTextFormatter.formatSymbols(key.getDescription()));
     }
+
 
 
     @Override

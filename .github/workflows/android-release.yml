@@ -82,8 +82,8 @@ jobs:
             VersionCode: ${{ steps.version.outputs.version_code }}
 
             Changes:
-            - Added the fixed zhongwen.jks release signing key to the repository.
-            - Built and published a release APK signed with the fixed zhongwen key.
+            - Fixed the speak_key_label switch so TalkBack/touch exploration key-description speech is also disabled when the setting is off.
+            - Kept the release APK signed with the fixed zhongwen.jks key.
             - Kept the async Rime threading crash fix, first-key warmup fix, app rename, and AI patch notice.
 
             Verification:
