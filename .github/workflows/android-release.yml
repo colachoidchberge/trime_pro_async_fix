@@ -82,9 +82,18 @@ jobs:
             VersionCode: ${{ steps.version.outputs.version_code }}
 
             Changes:
-            - Fixed the speak_key_label switch so TalkBack/touch exploration key-description speech is also disabled when the setting is off.
+            - Added independent Ctrl, Alt, and Win soft-key presets: Ctrl_L, Alt_L, and Win_L.
+            - Ctrl_L sends Android Control_L, Alt_L sends Alt_L, and Win_L sends Meta_L.
+            - Tapping Ctrl_L, Alt_L, or Win_L toggles that modifier for the next soft-key press; the modifier is then cleared automatically.
+            - Added combo parsing aliases so layouts can use Ctrl+key, Control+key, Alt+key, Win+key, Meta+key, or Super+key.
+            - Added Meta/Win key down/up simulation when sending Win/Meta combinations to target apps.
             - Kept the release APK signed with the fixed zhongwen.jks key.
-            - Kept the async Rime threading crash fix, first-key warmup fix, app rename, and AI patch notice.
+
+            Usage:
+            - Add standalone keys to a custom keyboard row with entries such as {click: Ctrl_L}, {click: Alt_L}, or {click: Win_L}.
+            - Use one-shot modifier flow: tap Ctrl, then tap c to send Ctrl+c; tap Alt, then tap Tab to send Alt+Tab; tap Win, then tap d to send Win+d where the target app/system accepts it.
+            - Use direct combo presets with send strings such as {label: Copy, send: Ctrl+c}, {label: Terminal, send: Ctrl+Alt+t}, or {label: Desktop, send: Win+d}.
+            - If a target text field or Android version ignores Win/Meta shortcuts, the key event is still sent but the receiving app/system may choose not to handle it.
 
             Verification:
             - Built by GitHub Actions using Gradle 6.5 assembleRelease.

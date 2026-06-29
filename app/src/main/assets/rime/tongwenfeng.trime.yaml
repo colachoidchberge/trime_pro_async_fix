@@ -4305,6 +4305,9 @@ preset_keys:
   VOLUME_MUTE: {label: 静音, send: VOLUME_MUTE}
   # 编辑
   Shift_L: {label: Shift, preview: '⇪', functional: false, send: Shift_L}
+  Ctrl_L: {label: Ctrl, functional: false, send: Control_L, description: Ctrl}
+  Alt_L: {label: Alt, functional: false, send: Alt_L, description: Alt}
+  Win_L: {label: Win, functional: false, send: Meta_L, description: Win}
   Return: {label: Enter, preview: '↩', functional: false, send: Return}
   Hide: {label: 隐藏, send: BACK}
   BackSpace: {label: 退格, preview: '⇦', repeatable: true, functional: false, send: BackSpace}

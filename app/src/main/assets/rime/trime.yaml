@@ -265,6 +265,9 @@ preset_keys:
   MEDIA_PREVIOUS: {label: 上一曲, send: MEDIA_PREVIOUS}
   # 編輯
   Shift_L: {label: Shift, send: Shift_L, shift_lock: ascii_long}
+  Ctrl_L: {label: Ctrl, send: Control_L, description: Ctrl}
+  Alt_L: {label: Alt, send: Alt_L, description: Alt}
+  Win_L: {label: Win, send: Meta_L, description: Win}
   Return: {label: Enter, send: Return, description: 回车}
   Hide: {label: 隐藏, send: BACK}
   BackSpace: {label: ⌫, repeatable: true, send: BackSpace, description: 删除}

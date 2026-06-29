@@ -730,6 +730,11 @@ public class Keyboard {
         return mMetaState;
     }
 
+    public void resetModifiers() {
+        mMetaState = 0;
+        if (mShiftKey != null) mShiftKey.setOn(false);
+    }
+
     private boolean setModifier(int mask, boolean value) {
         boolean b = hasModifier(mask);
         if (b == value) return false;
@@ -748,6 +753,10 @@ public class Keyboard {
 
     public boolean isCtrled() {
         return hasModifier(KeyEvent.META_CTRL_ON);
+    }
+
+    public boolean isMetaed() {
+        return hasModifier(KeyEvent.META_META_ON);
     }
 
     /**

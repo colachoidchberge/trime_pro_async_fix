@@ -306,7 +306,11 @@ public class Event {
                 {
                     put("Shift", KeyEvent.META_SHIFT_ON);
                     put("Control", KeyEvent.META_CTRL_ON);
+                    put("Ctrl", KeyEvent.META_CTRL_ON);
                     put("Alt", KeyEvent.META_ALT_ON);
+                    put("Meta", KeyEvent.META_META_ON);
+                    put("Win", KeyEvent.META_META_ON);
+                    put("Super", KeyEvent.META_META_ON);
                 }
             };
 

@@ -924,6 +924,8 @@ public class KeyboardView extends View implements View.OnClickListener {
             s = "c";
         else if (mKeyboard.isAlted())
             s = "a";
+        else if (mKeyboard.isMetaed())
+            s = "m";
         /*if (isShift()) {
             if (isNormal(drawableState)) {
                 if (on) {

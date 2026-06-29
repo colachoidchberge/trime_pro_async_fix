@@ -2187,8 +2187,36 @@ public class Trime extends LuaService
         }
     }
 
+    private boolean handleModifierKey(int keyCode) {
+        int modifier = 0;
+        if (keyCode == KeyEvent.KEYCODE_CTRL_LEFT || keyCode == KeyEvent.KEYCODE_CTRL_RIGHT) {
+            modifier = KeyEvent.META_CTRL_ON;
+        } else if (keyCode == KeyEvent.KEYCODE_ALT_LEFT || keyCode == KeyEvent.KEYCODE_ALT_RIGHT) {
+            modifier = KeyEvent.META_ALT_ON;
+        } else if (keyCode == KeyEvent.KEYCODE_META_LEFT || keyCode == KeyEvent.KEYCODE_META_RIGHT) {
+            modifier = KeyEvent.META_META_ON;
+        }
+        if (modifier == 0 || mKeyboardSwitch == null) return false;
+        mKeyboardSwitch.getCurrentKeyboard().toggleModifier(modifier);
+        if (mKeyboardView != null) mKeyboardView.invalidateAllKeys();
+        return true;
+    }
+
+    private int applyKeyboardModifiers(int mask) {
+        if (mKeyboardSwitch == null) return mask;
+        Keyboard keyboard = mKeyboardSwitch.getCurrentKeyboard();
+        int modifiers = keyboard.getModifer();
+        if (modifiers == 0) return mask;
+        mask |= modifiers;
+        keyboard.resetModifiers();
+        if (mKeyboardView != null) mKeyboardView.invalidateAllKeys();
+        return mask;
+    }
+
     private boolean handleKey(int keyCode, int mask) { //軟鍵盤
         keyUpNeeded = false;
+        if (handleModifierKey(keyCode)) return true;
+        mask = applyKeyboardModifiers(mask);
         long ms = System.currentTimeMillis();
         if (onRimeKey(Event.getRimeEvent(keyCode, mask))) {
             keyUpNeeded = true;
@@ -2253,8 +2281,14 @@ public class Trime extends LuaService
         if (Event.hasModifier(mask, KeyEvent.META_ALT_ON)) {
             sendKeyDown(ic, KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.META_ALT_ON | KeyEvent.META_ALT_LEFT_ON);
         }
+        if (Event.hasModifier(mask, KeyEvent.META_META_ON)) {
+            sendKeyDown(ic, KeyEvent.KEYCODE_META_LEFT, KeyEvent.META_META_ON | KeyEvent.META_META_LEFT_ON);
+        }
         sendKeyDown(ic, keyCode, mask);
         sendKeyUp(ic, keyCode, mask);
+        if (Event.hasModifier(mask, KeyEvent.META_META_ON)) {
+            sendKeyUp(ic, KeyEvent.KEYCODE_META_LEFT, KeyEvent.META_META_ON | KeyEvent.META_META_LEFT_ON);
+        }
         if (Event.hasModifier(mask, KeyEvent.META_ALT_ON)) {
             sendKeyUp(ic, KeyEvent.KEYCODE_ALT_LEFT, KeyEvent.META_ALT_ON | KeyEvent.META_ALT_LEFT_ON);
         }
