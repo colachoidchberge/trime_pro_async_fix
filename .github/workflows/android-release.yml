@@ -78,22 +78,41 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           name: 中文输入法AI版 ${{ steps.version.outputs.version_name }}
           body: |
+            # 中文说明
+
+            版本：${{ steps.version.outputs.version_name }}
+            VersionCode：${{ steps.version.outputs.version_code }}
+
+            改动内容：
+            - 之后 GitHub Releases 发版说明固定使用中英双语格式。
+            - 保留独立 Ctrl、Alt、Win 软键功能：Ctrl_L、Alt_L、Win_L。
+            - 保留固定 zhongwen.jks 正式签名打包。
+
+            使用方式：
+            - 自定义键盘可加入 {click: Ctrl_L}、{click: Alt_L}、{click: Win_L}。
+            - 点 Ctrl 后再点 c 发送 Ctrl+c；点 Alt 后再点 Tab 发送 Alt+Tab；点 Win 后再点 d 发送 Win+d。
+            - 也可以直接配置组合键，例如 {label: Copy, send: Ctrl+c}、{label: Terminal, send: Ctrl+Alt+t}、{label: Desktop, send: Win+d}。
+            - 部分 Android 版本或目标 App 可能忽略 Win/Meta 快捷键；本应用会发送事件，是否响应取决于接收方。
+
+            验证：
+            - GitHub Actions 使用 Gradle 6.5 assembleRelease 云端构建。
+            - APK 使用 signing/zhongwen.jks，alias zhongwen 正式签名。
+
+            # English Notes
+
             Version: ${{ steps.version.outputs.version_name }}
             VersionCode: ${{ steps.version.outputs.version_code }}
 
             Changes:
-            - Added independent Ctrl, Alt, and Win soft-key presets: Ctrl_L, Alt_L, and Win_L.
-            - Ctrl_L sends Android Control_L, Alt_L sends Alt_L, and Win_L sends Meta_L.
-            - Tapping Ctrl_L, Alt_L, or Win_L toggles that modifier for the next soft-key press; the modifier is then cleared automatically.
-            - Added combo parsing aliases so layouts can use Ctrl+key, Control+key, Alt+key, Win+key, Meta+key, or Super+key.
-            - Added Meta/Win key down/up simulation when sending Win/Meta combinations to target apps.
-            - Kept the release APK signed with the fixed zhongwen.jks key.
+            - GitHub Releases notes will use a bilingual Chinese/English format from now on.
+            - Kept independent Ctrl, Alt, and Win soft-key support: Ctrl_L, Alt_L, and Win_L.
+            - Kept release APK signing with the fixed zhongwen.jks key.
 
             Usage:
-            - Add standalone keys to a custom keyboard row with entries such as {click: Ctrl_L}, {click: Alt_L}, or {click: Win_L}.
-            - Use one-shot modifier flow: tap Ctrl, then tap c to send Ctrl+c; tap Alt, then tap Tab to send Alt+Tab; tap Win, then tap d to send Win+d where the target app/system accepts it.
-            - Use direct combo presets with send strings such as {label: Copy, send: Ctrl+c}, {label: Terminal, send: Ctrl+Alt+t}, or {label: Desktop, send: Win+d}.
-            - If a target text field or Android version ignores Win/Meta shortcuts, the key event is still sent but the receiving app/system may choose not to handle it.
+            - Add standalone keys to a custom keyboard row with {click: Ctrl_L}, {click: Alt_L}, or {click: Win_L}.
+            - Tap Ctrl then c to send Ctrl+c; tap Alt then Tab to send Alt+Tab; tap Win then d to send Win+d.
+            - Direct combo presets are also supported, for example {label: Copy, send: Ctrl+c}, {label: Terminal, send: Ctrl+Alt+t}, or {label: Desktop, send: Win+d}.
+            - Some Android versions or target apps may ignore Win/Meta shortcuts; the key event is sent, but handling depends on the receiver.
 
             Verification:
             - Built by GitHub Actions using Gradle 6.5 assembleRelease.
