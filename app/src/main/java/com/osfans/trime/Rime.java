@@ -266,49 +266,49 @@ public class Rime {
      * worker cannot race UI reads/writes and crash inside lua_resume().
      */
 
-    public static synchronized void setShowSwitches(boolean show) {
+    public static void setShowSwitches(boolean show) {
         showSwitches = show;
     }
 
-    public static synchronized boolean hasMenu() {
+    public static boolean hasMenu() {
         return isComposing() && mContext.menu.num_candidates != 0;
     }
 
-    public static synchronized boolean hasLeft() {
+    public static boolean hasLeft() {
         return hasMenu() && mContext.menu.page_no != 0;
     }
 
-    public static synchronized boolean hasRight() {
+    public static boolean hasRight() {
         return hasMenu() && !mContext.menu.is_last_page;
     }
 
-    public static synchronized boolean isPaging() {
+    public static boolean isPaging() {
         return hasLeft();
     }
 
-    public static synchronized boolean isComposing() {
+    public static boolean isComposing() {
         return mStatus.is_composing;
     }
 
-    public static synchronized boolean isAsciiMode() {
+    public static boolean isAsciiMode() {
         return mStatus.is_ascii_mode;
     }
 
-    public static synchronized String getOptionName(int i) {
+    public static String getOptionName(int i) {
         return mSchema.getOptionName(i);
     }
 
-    public static synchronized RimeComposition getComposition() {
+    public static RimeComposition getComposition() {
         if (mContext == null) return null;
         return mContext.composition;
     }
 
-    public static synchronized String getCompositionText() {
+    public static String getCompositionText() {
         RimeComposition composition = getComposition();
         return (composition == null) ? "" : composition.preedit;
     }
 
-    public static synchronized String getComposingText() {
+    public static String getComposingText() {
         if (mContext == null || mContext.commit_text_preview == null) return "";
         return mContext.commit_text_preview;
     }
@@ -355,7 +355,7 @@ public class Rime {
         self = null;
     }
 
-    public static synchronized String getCommitText() {
+    public static String getCommitText() {
         return mCommit.text;
     }
 
@@ -396,21 +396,21 @@ public class Rime {
 
     private static RimeCandidate[] mRimeCandidate;
 
-    public static synchronized void setCandidates(RimeCandidate[] candidates) {
+    public static void setCandidates(RimeCandidate[] candidates) {
         mRimeCandidate = candidates;
     }
 
-    public static synchronized boolean hasCandidates() {
+    public static boolean hasCandidates() {
         return mRimeCandidate != null&&!hasLeft();
     }
 
-    public static synchronized int getCandidatesFix() {
+    public static int getCandidatesFix() {
         if(!hasCandidates()||mContext.size()==0)
             return 0;
        return mRimeCandidate.length-mContext.size();
     }
 
-    public static synchronized RimeCandidate[] getCandidates() {
+    public static RimeCandidate[] getCandidates() {
         if(isComposing()&&mContext.size()==0&&mRimeCandidate==null){
             RimeCandidate rc=new RimeCandidate();
             rc.text=RimeGetInput();
@@ -427,7 +427,7 @@ public class Rime {
         return mContext.getCandidates();
     }
 
-    public static synchronized String[] getSelectLabels() {
+    public static String[] getSelectLabels() {
         if (mContext != null && mContext.size() > 0) {
             if (mContext.select_labels != null) return mContext.select_labels;
             if (mContext.menu.select_keys != null) return mContext.menu.select_keys.split("\\B");
@@ -441,7 +441,7 @@ public class Rime {
         return null;
     }
 
-    public static synchronized int getCandHighlightIndex() {
+    public static int getCandHighlightIndex() {
         return isComposing() ? mContext.menu.highlighted_candidate_index : -1;
     }
 
@@ -489,7 +489,7 @@ public class Rime {
         return get_property(prop);
     }
 
-    public static synchronized String getSchemaId() {
+    public static String getSchemaId() {
         return get_current_schema();
     }
 
@@ -497,11 +497,11 @@ public class Rime {
         return s.contentEquals(".default"); //無方案
     }
 
-    public static synchronized boolean isEmpty() {
+    public static boolean isEmpty() {
         return isEmpty(getSchemaId());
     }
 
-    public static synchronized String[] getSchemaNames() {
+    public static String[] getSchemaNames() {
         int n = mSchemaList.size();
         String[] names = new String[n];
         int i = 0;
@@ -512,7 +512,7 @@ public class Rime {
         return names;
     }
 
-    public static synchronized String[] getSchemaIds() {
+    public static String[] getSchemaIds() {
         int n = mSchemaList.size();
         String[] names = new String[n];
         int i = 0;
@@ -523,7 +523,7 @@ public class Rime {
         return names;
     }
 
-    public static synchronized int getSchemaIndex() {
+    public static int getSchemaIndex() {
         String schema_id = getSchemaId();
         int i = 0;
         for (Object o : mSchemaList) {
@@ -534,7 +534,7 @@ public class Rime {
         return 0;
     }
 
-    public static synchronized String getSchemaName() {
+    public static String getSchemaName() {
         return mStatus.schema_name;
     }
 
@@ -585,12 +585,12 @@ public class Rime {
         return get(false);
     }
 
-    public static synchronized String RimeGetInput() {
+    public static String RimeGetInput() {
         String s = get_input();
         return s == null ? "" : s;
     }
 
-    public static synchronized int RimeGetCaretPos() {
+    public static int RimeGetCaretPos() {
         return get_caret_pos();
     }
 
@@ -610,7 +610,7 @@ public class Rime {
             }
         }
     };
-    public static synchronized void onMessage(String message_type, String message_value) {
+    public static void onMessage(String message_type, String message_value) {
         mOnMessage = true;
         Log.info(String.format("message: [%s] %s", message_type, message_value));
         Trime trime = Trime.getService();
