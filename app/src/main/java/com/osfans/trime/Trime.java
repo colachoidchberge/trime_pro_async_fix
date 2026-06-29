@@ -36,6 +36,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
@@ -449,6 +450,7 @@ public class Trime extends LuaService
         //setTheme(android.R.style.Theme_Material_Light);
         super.onCreate();
         mAsyncThread.start();
+        mAsyncThread.waitUntilReady();
         // android.util.Log.i(TAG, "onCreate: ");
         self = this;
         mIntentReceiver = new IntentReceiver();
@@ -901,6 +903,9 @@ public class Trime extends LuaService
         onWindowHidden();
         super.onDestroy();
         mIntentReceiver.unregisterReceiver(this);
+        if (mAsyncThread != null) {
+            mAsyncThread.quitSafely();
+        }
         self = null;
         if (mEffect != null)
             mEffect.destory();
@@ -2254,18 +2259,24 @@ public class Trime extends LuaService
     private int currKeyIdx = 0;
     private AsyncThread mAsyncThread = new AsyncThread();
 
-    private final class AsyncThread extends Thread {
+    /** Serial Rime worker. All async key/candidate operations are executed on this
+     * single looper, while Rime.java synchronizes legacy UI reads. */
+    private final class AsyncThread extends HandlerThread {
         private AsyncHandler mAsyncHandler;
 
-        @Override
-        public void run() {
-            Looper.prepare();
-            mAsyncHandler = new AsyncHandler();
-            Looper.loop();
+        AsyncThread() {
+            super("TrimeRimeThread");
+        }
+
+        void waitUntilReady() {
+            if (mAsyncHandler == null) {
+                mAsyncHandler = new AsyncHandler(getLooper());
+            }
         }
 
         public void asyncKey(final int keyCode, final int mask) {
-            Message msg = new Message();
+            waitUntilReady();
+            Message msg = Message.obtain();
             msg.arg1 = keyCode;
             msg.arg2 = mask;
             msg.what = 0;
@@ -2273,7 +2284,8 @@ public class Trime extends LuaService
         }
 
         public void asyncSelectCandidate(int i) {
-            Message msg = new Message();
+            waitUntilReady();
+            Message msg = Message.obtain();
             msg.arg1 = i;
             msg.what = 100;
             mAsyncHandler.sendMessage(msg);
@@ -2283,12 +2295,21 @@ public class Trime extends LuaService
 
     @SuppressLint("HandlerLeak")
     private class AsyncHandler extends Handler {
+        AsyncHandler(Looper looper) {
+            super(looper);
+        }
+
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             android.util.Log.i(TAG, "handleMessage: " + msg);
             switch (msg.what) {
                 case 0:
+                    try {
+                        updateRimeOption();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     if (Rime.onKey(Event.getRimeEvent(msg.arg1, msg.arg2))) {
                         mHandler.sendEmptyMessage(0);
                     } else {
@@ -2315,11 +2336,6 @@ public class Trime extends LuaService
         final int idx = ++currKeyIdx;
         keyUpNeeded = false;
         final long ms = System.currentTimeMillis();
-        try {
-            updateRimeOption();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         mAsyncThread.asyncKey(keyCode, mask);
         android.util.Log.i(TAG, "Rime onAsyncKey end " + (System.currentTimeMillis() - ms));
     }

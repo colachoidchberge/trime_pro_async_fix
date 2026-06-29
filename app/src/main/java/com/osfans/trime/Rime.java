@@ -260,50 +260,55 @@ public class Rime {
     public static int META_ALT_ON = get_modifier_by_name("Alt");
     public static int META_RELEASE_ON = get_modifier_by_name("Release");
     private static boolean showSwitches = true;
+    /**
+     * librime/librime-lua keeps one native session and Lua state behind these static JNI calls.
+     * Java entry points that touch the native session are synchronized so the async key
+     * worker cannot race UI reads/writes and crash inside lua_resume().
+     */
 
-    public static void setShowSwitches(boolean show) {
+    public static synchronized void setShowSwitches(boolean show) {
         showSwitches = show;
     }
 
-    public static boolean hasMenu() {
+    public static synchronized boolean hasMenu() {
         return isComposing() && mContext.menu.num_candidates != 0;
     }
 
-    public static boolean hasLeft() {
+    public static synchronized boolean hasLeft() {
         return hasMenu() && mContext.menu.page_no != 0;
     }
 
-    public static boolean hasRight() {
+    public static synchronized boolean hasRight() {
         return hasMenu() && !mContext.menu.is_last_page;
     }
 
-    public static boolean isPaging() {
+    public static synchronized boolean isPaging() {
         return hasLeft();
     }
 
-    public static boolean isComposing() {
+    public static synchronized boolean isComposing() {
         return mStatus.is_composing;
     }
 
-    public static boolean isAsciiMode() {
+    public static synchronized boolean isAsciiMode() {
         return mStatus.is_ascii_mode;
     }
 
-    public static String getOptionName(int i) {
+    public static synchronized String getOptionName(int i) {
         return mSchema.getOptionName(i);
     }
 
-    public static RimeComposition getComposition() {
+    public static synchronized RimeComposition getComposition() {
         if (mContext == null) return null;
         return mContext.composition;
     }
 
-    public static String getCompositionText() {
+    public static synchronized String getCompositionText() {
         RimeComposition composition = getComposition();
         return (composition == null) ? "" : composition.preedit;
     }
 
-    public static String getComposingText() {
+    public static synchronized String getComposingText() {
         if (mContext == null || mContext.commit_text_preview == null) return "";
         return mContext.commit_text_preview;
     }
@@ -313,11 +318,11 @@ public class Rime {
         self = this;
     }
 
-    public static void resetSchema() {
+    public static synchronized void resetSchema() {
         initSchema();
     }
 
-    private static void initSchema() {
+    private static synchronized void initSchema() {
         Function.printStackTrace("initSchema");
         mSchemaList = get_schema_list();
         String schema_id = getSchemaId();
@@ -325,12 +330,12 @@ public class Rime {
         getStatus();
     }
 
-    private static boolean getStatus() {
+    private static synchronized boolean getStatus() {
         mSchema.getValue();
         return get_status(mStatus);
     }
 
-    private static void init(boolean full_check) {
+    private static synchronized void init(boolean full_check) {
         mOnMessage = false;
         initialize(Config.get().getSharedDataDir(), Config.get().getUserDataDir());
         check(full_check);
@@ -344,21 +349,21 @@ public class Rime {
         initSchema();
     }
 
-    public static void destroy() {
+    public static synchronized void destroy() {
         destroy_session();
         finalize1();
         self = null;
     }
 
-    public static String getCommitText() {
+    public static synchronized String getCommitText() {
         return mCommit.text;
     }
 
-    public static boolean getCommit() {
+    public static synchronized boolean getCommit() {
         return get_commit(mCommit);
     }
 
-    private static boolean getContexts() {
+    private static synchronized boolean getContexts() {
         boolean b = get_context(mContext);
         getStatus();
         return b;
@@ -376,12 +381,12 @@ public class Rime {
         return b;
     }
 
-    public static boolean onKey(int[] event) {
+    public static synchronized boolean onKey(int[] event) {
         if (event != null && event.length == 2) return onKey(event[0], event[1]);
         return false;
     }
 
-    public static boolean onText(CharSequence text) {
+    public static synchronized boolean onText(CharSequence text) {
         if (text == null || text.length() == 0) return false;
         boolean b = simulate_key_sequence(text.toString().replace("{}", "{braceleft}{braceright}"));
         //Log.info("b=" + b + ",input=" + text);
@@ -391,21 +396,21 @@ public class Rime {
 
     private static RimeCandidate[] mRimeCandidate;
 
-    public static void setCandidates(RimeCandidate[] candidates) {
+    public static synchronized void setCandidates(RimeCandidate[] candidates) {
         mRimeCandidate = candidates;
     }
 
-    public static boolean hasCandidates() {
+    public static synchronized boolean hasCandidates() {
         return mRimeCandidate != null&&!hasLeft();
     }
 
-    public static int getCandidatesFix() {
+    public static synchronized int getCandidatesFix() {
         if(!hasCandidates()||mContext.size()==0)
             return 0;
        return mRimeCandidate.length-mContext.size();
     }
 
-    public static RimeCandidate[] getCandidates() {
+    public static synchronized RimeCandidate[] getCandidates() {
         if(isComposing()&&mContext.size()==0&&mRimeCandidate==null){
             RimeCandidate rc=new RimeCandidate();
             rc.text=RimeGetInput();
@@ -422,7 +427,7 @@ public class Rime {
         return mContext.getCandidates();
     }
 
-    public static String[] getSelectLabels() {
+    public static synchronized String[] getSelectLabels() {
         if (mContext != null && mContext.size() > 0) {
             if (mContext.select_labels != null) return mContext.select_labels;
             if (mContext.menu.select_keys != null) return mContext.menu.select_keys.split("\\B");
@@ -436,37 +441,37 @@ public class Rime {
         return null;
     }
 
-    public static int getCandHighlightIndex() {
+    public static synchronized int getCandHighlightIndex() {
         return isComposing() ? mContext.menu.highlighted_candidate_index : -1;
     }
 
-    public static boolean commitComposition() {
+    public static synchronized boolean commitComposition() {
         boolean b = commit_composition();
         getContexts();
         return b;
     }
 
-    public static void clearComposition() {
+    public static synchronized void clearComposition() {
         clear_composition();
         getContexts();
     }
 
-    public static boolean selectCandidate(int index) {
+    public static synchronized boolean selectCandidate(int index) {
         boolean b = select_candidate_on_current_page(index);
         getContexts();
         return b;
     }
 
-    public static void setOption(String option, boolean value) {
+    public static synchronized void setOption(String option, boolean value) {
         if (mOnMessage) return;
         set_option(option, value);
     }
 
-    public static boolean getOption(String option) {
+    public static synchronized boolean getOption(String option) {
         return get_option(option);
     }
 
-    public static void toggleOption(String option) {
+    public static synchronized void toggleOption(String option) {
         boolean b = getOption(option);
         setOption(option, !b);
     }
@@ -484,7 +489,7 @@ public class Rime {
         return get_property(prop);
     }
 
-    public static String getSchemaId() {
+    public static synchronized String getSchemaId() {
         return get_current_schema();
     }
 
@@ -492,11 +497,11 @@ public class Rime {
         return s.contentEquals(".default"); //無方案
     }
 
-    public static boolean isEmpty() {
+    public static synchronized boolean isEmpty() {
         return isEmpty(getSchemaId());
     }
 
-    public static String[] getSchemaNames() {
+    public static synchronized String[] getSchemaNames() {
         int n = mSchemaList.size();
         String[] names = new String[n];
         int i = 0;
@@ -507,7 +512,7 @@ public class Rime {
         return names;
     }
 
-    public static String[] getSchemaIds() {
+    public static synchronized String[] getSchemaIds() {
         int n = mSchemaList.size();
         String[] names = new String[n];
         int i = 0;
@@ -518,7 +523,7 @@ public class Rime {
         return names;
     }
 
-    public static int getSchemaIndex() {
+    public static synchronized int getSchemaIndex() {
         String schema_id = getSchemaId();
         int i = 0;
         for (Object o : mSchemaList) {
@@ -529,11 +534,11 @@ public class Rime {
         return 0;
     }
 
-    public static String getSchemaName() {
+    public static synchronized String getSchemaName() {
         return mStatus.schema_name;
     }
 
-    public static int selectSchemaId(String schema_id) {
+    public static synchronized int selectSchemaId(String schema_id) {
         if(mSchemaList==null)
             return -1;
         for (Object o : mSchemaList) {
@@ -551,7 +556,7 @@ public class Rime {
         return b;
     }
 
-    public static boolean selectSchema(int id) {
+    public static synchronized boolean selectSchema(int id) {
         int n = mSchemaList.size();
         if (id < 0 || id >= n) return false;
         String schema_id = getSchemaId();
@@ -580,16 +585,16 @@ public class Rime {
         return get(false);
     }
 
-    public static String RimeGetInput() {
+    public static synchronized String RimeGetInput() {
         String s = get_input();
         return s == null ? "" : s;
     }
 
-    public static int RimeGetCaretPos() {
+    public static synchronized int RimeGetCaretPos() {
         return get_caret_pos();
     }
 
-    public static void RimeSetCaretPos(int caret_pos) {
+    public static synchronized void RimeSetCaretPos(int caret_pos) {
         set_caret_pos(caret_pos);
         getContexts();
     }
@@ -605,7 +610,7 @@ public class Rime {
             }
         }
     };
-    public static void onMessage(String message_type, String message_value) {
+    public static synchronized void onMessage(String message_type, String message_value) {
         mOnMessage = true;
         Log.info(String.format("message: [%s] %s", message_type, message_value));
         Trime trime = Trime.getService();
@@ -622,9 +627,17 @@ public class Rime {
                 getStatus();
                 getContexts(); //切換中英文、簡繁體時更新候選
                 if (trime != null) {
-                    boolean value = !message_value.startsWith("!");
-                    String option = message_value.substring(value ? 0 : 1);
-                    trime.onOptionChanged(option, value);
+                    final boolean value = !message_value.startsWith("!");
+                    final String option = message_value.substring(value ? 0 : 1);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Trime service = Trime.getService();
+                            if (service != null) {
+                                service.onOptionChanged(option, value);
+                            }
+                        }
+                    });
                 }
                 break;
         }
@@ -639,12 +652,12 @@ public class Rime {
         return line;
     }
 
-    public static void check(boolean full_check) {
+    public static synchronized void check(boolean full_check) {
         start_maintenance(full_check);
         if (is_maintenance_mode()) join_maintenance_thread();
     }
 
-    public static boolean syncUserData() {
+    public static synchronized boolean syncUserData() {
         boolean b = sync_user_data();
         destroy();
         get();
