@@ -21,8 +21,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.osfans.trime.pro"
-    android:versionCode="8"
-    android:versionName="1.0.20260629.6" >
+    android:versionCode="9"
+    android:versionName="1.0.20260629.7" >
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
