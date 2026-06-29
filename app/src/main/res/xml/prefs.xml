@@ -434,6 +434,10 @@
         android:order="32"
         android:title="@string/pref_help">
         <Preference
+            android:key="pref_ai_patch_notice"
+            android:summary="@string/pref_ai_patch_notice_summary"
+            android:title="@string/pref_ai_patch_notice" />
+        <Preference
             android:key="pref_wiki"
             android:title="@string/pref_wiki">
             <intent
@@ -484,6 +488,10 @@
         android:order="64"
         android:summary="由nirenr基于Trime开发"
         android:title="@string/pref_about">
+        <Preference
+            android:key="pref_ai_patch_notice"
+            android:summary="@string/pref_ai_patch_notice_summary"
+            android:title="@string/pref_ai_patch_notice" />
         <Preference
             android:key="pref_wiki"
             android:title="@string/pref_wiki">

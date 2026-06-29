@@ -20,7 +20,7 @@
 
 <resources xmlns:xliff="urn:oasis:names:en:xliff:document:1.2">
     <!-- Input Method Platform Tittle  -->
-    <string name="ime_name">Arime</string>
+    <string name="ime_name">中文输入法AI版</string>
 
     <!-- Preference settings -->
     <string name="pref_help">Help</string>
@@ -35,6 +35,8 @@
     <string name="pref_donate_summary">Use Alipay to support TRIME and PRIME</string>
 
     <string name="pref_about">About</string>
+    <string name="pref_ai_patch_notice">AI修补版</string>
+    <string name="pref_ai_patch_notice_summary">AI修补版有bug勿找作者反馈</string>
     <string name="pref_librime_ver">RIME Version</string>
     <string name="pref_opencc_ver">OpenCC Version</string>
     <string name="pref_changelog">Trime Version</string>

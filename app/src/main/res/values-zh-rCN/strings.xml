@@ -21,7 +21,7 @@
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- 输入法平台名称  -->
-    <string name="ime_name">中文输入法</string>
+    <string name="ime_name">中文输入法AI版</string>
 
     <!-- Preference settings -->
     <string name="pref_help">求助</string>
@@ -36,6 +36,8 @@
     <string name="pref_donate_summary">自愿用支付宝捐助同文和PRIME的开发</string>
 
     <string name="pref_about">关于</string>
+    <string name="pref_ai_patch_notice">AI修补版</string>
+    <string name="pref_ai_patch_notice_summary">AI修补版有bug勿找作者反馈</string>
     <string name="pref_librime_ver">RIME版本</string>
     <string name="pref_opencc_ver">OpenCC版本</string>
     <string name="pref_changelog">Trime版本</string>
