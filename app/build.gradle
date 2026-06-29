@@ -14,10 +14,10 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file(System.getenv('TRIME_RELEASE_STORE_FILE') ?: 'release.keystore')
-            storePassword System.getenv('TRIME_RELEASE_STORE_PASSWORD') ?: ''
-            keyAlias System.getenv('TRIME_RELEASE_KEY_ALIAS') ?: ''
-            keyPassword System.getenv('TRIME_RELEASE_KEY_PASSWORD') ?: ''
+            storeFile file(System.getenv('TRIME_RELEASE_STORE_FILE') ?: '../signing/zhongwen.jks')
+            storePassword System.getenv('TRIME_RELEASE_STORE_PASSWORD') ?: 'zhongwen'
+            keyAlias System.getenv('TRIME_RELEASE_KEY_ALIAS') ?: 'zhongwen'
+            keyPassword System.getenv('TRIME_RELEASE_KEY_PASSWORD') ?: 'zhongwen'
         }
     }
     buildTypes {

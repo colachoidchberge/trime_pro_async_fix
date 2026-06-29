@@ -56,24 +56,15 @@ jobs:
           echo "version_code=${VERSION_CODE}" >> "$GITHUB_OUTPUT"
           echo "tag=v${VERSION_NAME}" >> "$GITHUB_OUTPUT"
 
-      - name: Generate release signing key
-        run: |
-          keytool -genkeypair -v \
-            -keystore "$RUNNER_TEMP/trime-release.keystore" \
-            -storepass trime-ai-release \
-            -keypass trime-ai-release \
-            -alias trime-ai \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Chinese Input Method AI, OU=AI Patch, O=Operit, L=Unknown, S=Unknown, C=CN"
+      - name: Verify release signing key
+        run: keytool -list -keystore signing/zhongwen.jks -storepass zhongwen -alias zhongwen
 
       - name: Build signed release APK
         env:
-          TRIME_RELEASE_STORE_FILE: ${{ runner.temp }}/trime-release.keystore
-          TRIME_RELEASE_STORE_PASSWORD: trime-ai-release
-          TRIME_RELEASE_KEY_ALIAS: trime-ai
-          TRIME_RELEASE_KEY_PASSWORD: trime-ai-release
+          TRIME_RELEASE_STORE_FILE: ../signing/zhongwen.jks
+          TRIME_RELEASE_STORE_PASSWORD: zhongwen
+          TRIME_RELEASE_KEY_ALIAS: zhongwen
+          TRIME_RELEASE_KEY_PASSWORD: zhongwen
         run: gradle assembleRelease --no-daemon --stacktrace
 
       - name: Collect APK
@@ -91,13 +82,13 @@ jobs:
             VersionCode: ${{ steps.version.outputs.version_code }}
 
             Changes:
-            - Generated an ad-hoc release signing key during GitHub Actions build.
-            - Built and published a signed release APK instead of a debug APK.
+            - Added the fixed zhongwen.jks release signing key to the repository.
+            - Built and published a release APK signed with the fixed zhongwen key.
             - Kept the async Rime threading crash fix, first-key warmup fix, app rename, and AI patch notice.
 
             Verification:
             - Built by GitHub Actions using Gradle 6.5 assembleRelease.
-            - Release APK is signed with the workflow-generated key.
+            - Release APK is signed with signing/zhongwen.jks, alias zhongwen.
           files: release/*.apk
           fail_on_unmatched_files: true
 
